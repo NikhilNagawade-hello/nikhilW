@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather App</title>
+<style>
+    /* Background video styling */
+    #bg-video {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100vw;
+      min-height: 100vh;
+      width: auto;
+      height: auto;
+      z-index: -1;
+      object-fit: cover;
+      filter: brightness(0.7) blur(1px);
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #222;
+    }
+
+    #weather {
+      background: rgba(255,255,255,0.13);
+      padding: 36px 48px;
+      border-radius: 22px;
+      box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.18);
+      border: 1.5px solid rgba(255,255,255,0.22);
+      min-width: 320px;
+      margin-top: 28px;
+      font-size: 1.15rem;
+      color: #fff;
+      backdrop-filter: blur(8px) saturate(140%);
+      text-align: center;
+      transition: box-shadow 0.2s;
+    }
+
+    #weather h2 {
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 2rem;
+      letter-spacing: 1px;
+      color: #e0e7ef;
+      text-shadow: 0 2px 8px #222;
+    }
+
+    #weather p {
+      margin: 10px 0;
+      font-size: 1.08rem;
+      color: #eaf6fb;
+      text-shadow: 0 1px 4px #222;
+    }
+
+    input[type="text"] {
+      padding: 14px 20px;
+      border-radius: 10px;
+      border: 1.5px solid #e0e7ef;
+      outline: none;
+      font-size: 1.1rem;
+      margin-right: 12px;
+      background: rgba(255, 255, 255, 0.199);
+      color: #090909;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      transition: border 0.2s, box-shadow 0.2s;
+      width: 260px;
+      max-width: 90vw;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus {
+      border: 1.5px solid #00c6fb;
+      box-shadow: 0 6px 24px rgba(0,198,251,0.10);
+      background: #ffffff09;
+      
+    }
+ 
+    button {
+      padding: 14px 32px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(90deg, #00c6fb 0%, #005bea 100%);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      letter-spacing: 1px;
+    }
+
+    button:hover, button:focus {
+      background: linear-gradient(90deg, #005bea 0%, #00c6fb 100%);
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 8px 32px rgba(0,198,251,0.13);
+    }
+
+    @media (max-width: 600px) {
+      #weather {
+        padding: 18px 8px;
+        min-width: 180px;
+      }
+      input[type="text"] {
+        width: 140px;
+        font-size: 0.95rem;
+      }
+      button {
+        padding: 10px 16px;
+        font-size: 0.95rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+</style>
+</head>
+<body>
+  <!-- Weather background video (replace src with your own weather video link if needed) -->
+  <video id="bg-video" autoplay loop muted playsinline>
+    <source src="https://www.w3schools.com/howto/rain.mp4" type="video/mp4">
+    <!-- Fallback image if video not supported -->
+  </video>
+
+  <!-- ...existing code... -->
+  <h1>Current Weather</h1>
+  <input type="text" id="cityInput" placeholder="Enter city name"><br><br>
+  <button onclick="getWeather()">Get Weather</button>
+  
+  <div id="weather"></div>
+
+  <script>
+    // Show weather by coordinates (lat, lon)
+    async function getWeatherByCoords(lat, lon) {
+      const apiKey = "716fa80fa121d5303590b6aef0d61f16";
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Location not found");
+        const data = await response.json();
+        showWeather(data);
+      } catch (error) {
+        document.getElementById("weather").innerHTML = `<p>Error: ${error.message}</p>`;
+      }
+    }
+
+    // Show weather by city name
+    async function getWeather() {
+      const city = document.getElementById("cityInput").value;
+      if (!city) return;
+      const apiKey = "716fa80fa121d5303590b6aef0d61f16"; 
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("City not found");
+        const data = await response.json();
+        showWeather(data);
+      } catch (error) {
+        document.getElementById("weather").innerHTML = `<p>Error: ${error.message}</p>`;
+      }
+    }
+
+    // Render weather info
+    function showWeather(data) {
+      const weatherInfo = `
+        <h2>${data.name}</h2>
+        <p><strong>Temperature:</strong> ${data.main.temp} °C</p>
+        <p><strong>Weather:</strong> ${data.weather[0].description}</p>
+        <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+      `;
+      document.getElementById("weather").innerHTML = weatherInfo;
+    }
+
+    // Try to get user's location on page load
+    window.onload = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            getWeatherByCoords(position.coords.latitude, position.coords.longitude);
+          },
+          (error) => {
+            document.getElementById("weather").innerHTML = "<p>Allow location access to see your local weather, or search for a city.</p>";
+          }
+        );
+      } else {
+        document.getElementById("weather").innerHTML = "<p>Geolocation is not supported by this browser.</p>";
+      }
+    };
+  </script>
+<!-- ...existing code... --
+</body>
+</html>
